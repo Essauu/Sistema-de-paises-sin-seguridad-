@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\PaisApp.props" />
-</Project>
