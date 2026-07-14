@@ -1,0 +1,130 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+    var stats = ViewBag.Stats;
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="p-5 mb-4 bg-primary text-white rounded-3 shadow">
+            <div class="container-fluid py-3">
+                <h1 class="display-5 fw-bold"><i class="bi bi-globe-americas me-3"></i>Sistema de Gestión de Países</h1>
+                <p class="col-md-8 fs-5">Administración completa de países, ciudades e idiomas con generación de reportes PDF y control de acceso por niveles.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card border-primary shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-flag text-primary" style="font-size: 2.5rem;"></i>
+                <h2 class="mt-2">@stats.TotalCountries</h2>
+                <p class="text-muted mb-0">Países registrados</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-success shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-building text-success" style="font-size: 2.5rem;"></i>
+                <h2 class="mt-2">@stats.TotalCities</h2>
+                <p class="text-muted mb-0">Ciudades registradas</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-info shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-translate text-info" style="font-size: 2.5rem;"></i>
+                <h2 class="mt-2">@stats.TotalLanguages</h2>
+                <p class="text-muted mb-0">Idiomas registrados</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-warning shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-people text-warning" style="font-size: 2.5rem;"></i>
+                <h2 class="mt-2">@stats.TotalPopulation.ToString("N0")</h2>
+                <p class="text-muted mb-0">Población mundial</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-trophy me-2 text-warning"></i>Países más poblados</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Código</th>
+                            <th>País</th>
+                            <th>Continente</th>
+                            <th class="text-end">Población</th>
+                            <th class="text-center">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            var pos = 1;
+                        }
+                        @foreach (var country in stats.TopPopulated)
+                        {
+                            <tr>
+                                <td>@pos</td>
+                                <td><code>@country.Code</code></td>
+                                <td>@country.Name</td>
+                                <td>@country.Continent</td>
+                                <td class="text-end">@country.Population.ToString("N0")</td>
+                                <td class="text-center">
+                                    <a asp-controller="Country" asp-action="Details" asp-route-id="@country.Code" class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            pos++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-controller="Country" asp-action="Index" class="btn btn-outline-primary">
+                        <i class="bi bi-flag me-2"></i>Gestionar Países
+                    </a>
+                    <a asp-controller="City" asp-action="Index" class="btn btn-outline-success">
+                        <i class="bi bi-building me-2"></i>Gestionar Ciudades
+                    </a>
+                    <a asp-controller="CountryLanguage" asp-action="Index" class="btn btn-outline-info">
+                        <i class="bi bi-translate me-2"></i>Gestionar Idiomas
+                    </a>
+                    <hr />
+                    <a asp-controller="Country" asp-action="Create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Nuevo País
+                    </a>
+                    <a asp-controller="City" asp-action="Create" class="btn btn-success">
+                        <i class="bi bi-plus-circle me-2"></i>Nueva Ciudad
+                    </a>
+                    <a asp-controller="CountryLanguage" asp-action="Create" class="btn btn-info">
+                        <i class="bi bi-plus-circle me-2"></i>Nuevo Idioma
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

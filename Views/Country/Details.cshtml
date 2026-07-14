@@ -1,0 +1,219 @@
+@model PaisApp.Models.Country
+@{
+    ViewData["Title"] = "Detalles - " + Model.Name;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-flag me-2"></i>@Model.Name (@Model.Code)</h2>
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Volver</a>
+        @if (User.FindFirst("Nivel")?.Value == "2" || User.FindFirst("Nivel")?.Value == "3")
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Code" class="btn btn-outline-warning ms-2"><i class="bi bi-pencil me-1"></i>Editar</a>
+        }
+        <a asp-action="Report" asp-route-id="@Model.Code" class="btn btn-success ms-2"><i class="bi bi-file-earmark-text me-1"></i>Ver Reporte</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Información General</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Código ISO 3</dt>
+                    <dd class="col-sm-9"><code>Model.Code</code></dd>
+
+                    <dt class="col-sm-3">Código ISO 2</dt>
+                    <dd class="col-sm-9"><code>Model.Code2</code></dd>
+
+                    <dt class="col-sm-3">Nombre Local</dt>
+                    <dd class="col-sm-9">@Model.LocalName</dd>
+
+                    <dt class="col-sm-3">Continente</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-primary fs-6">@Model.Continent</span>
+                    </dd>
+
+                    <dt class="col-sm-3">Región</dt>
+                    <dd class="col-sm-9">@Model.Region</dd>
+
+                    <dt class="col-sm-3">Superficie</dt>
+                    <dd class="col-sm-9">@Model.SurfaceArea.ToString("N2") km²</dd>
+
+                    <dt class="col-sm-3">Población</dt>
+                    <dd class="col-sm-9">@Model.Population.ToString("N0")</dd>
+
+                    <dt class="col-sm-3">Esperanza de Vida</dt>
+                    <dd class="col-sm-9">@(Model.LifeExpectancy?.ToString("F1") ?? "N/A") años</dd>
+
+                    <dt class="col-sm-3">GNP</dt>
+                    <dd class="col-sm-9">@(Model.GNP?.ToString("N2") ?? "N/A")</dd>
+
+                    <dt class="col-sm-3">GNPOld</dt>
+                    <dd class="col-sm-9">@(Model.GNPOld?.ToString("N2") ?? "N/A")</dd>
+
+                    <dt class="col-sm-3">Gobierno</dt>
+                    <dd class="col-sm-9">@Model.GovernmentForm</dd>
+
+                    <dt class="col-sm-3">Jefe de Estado</dt>
+                    <dd class="col-sm-9">@(Model.HeadOfState ?? "N/A")</dd>
+
+                    <dt class="col-sm-3">Año Independencia</dt>
+                    <dd class="col-sm-9">@(Model.IndepYear?.ToString() ?? "N/A")</dd>
+
+                    <dt class="col-sm-3">Capital</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.CapitalCity != null)
+                        {
+                            <a asp-controller="City" asp-action="Details" asp-route-id="@Model.CapitalCity.Id">
+                                @Model.CapitalCity.Name
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No definida</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-translate me-2"></i>Idiomas (@Model.CountryLanguages.Count)</h5>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.CountryLanguages.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Idioma</th>
+                                    <th class="text-center">Oficial</th>
+                                    <th class="text-end">Porcentaje</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var lang in Model.CountryLanguages.OrderByDescending(l => l.IsOfficial).ThenByDescending(l => l.Percentage))
+                                {
+                                    <tr>
+                                        <td>@lang.Language</td>
+                                        <td class="text-center">
+                                            @if (lang.IsOfficial == "T")
+                                            {
+                                                <span class="badge bg-success">Sí</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">No</span>
+                                            }
+                                        </td>
+                                        <td class="text-end">@lang.Percentage.ToString("F1")%</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-4">No hay idiomas registrados</div>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-building me-2"></i>Ciudades (@Model.Cities.Count)</h5>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Cities.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ciudad</th>
+                                    <th>Distrito</th>
+                                    <th class="text-end">Población</th>
+                                    <th class="text-center">Capital</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var city in Model.Cities.OrderByDescending(c => c.Population).Take(20))
+                                {
+                                    <tr>
+                                        <td>@city.Name</td>
+                                        <td>@city.District</td>
+                                        <td class="text-end">@city.Population.ToString("N0")</td>
+                                        <td class="text-center">
+                                            @if (city.Id == Model.Capital)
+                                            {
+                                                <i class="bi bi-star-fill text-warning" title="Capital"></i>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    @if (Model.Cities.Count > 20)
+                    {
+                        <div class="text-center p-3 text-muted">
+                            <small>Mostrando 20 de @Model.Cities.Count ciudades</small>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center text-muted py-4">No hay ciudades registradas</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-image me-2"></i>Bandera</h5>
+            </div>
+            <div class="card-body text-center">
+                <img src="https://flagcdn.com/128x96/@(Model.Code2.ToLower()).png"
+                     alt="Bandera de @Model.Name"
+                     class="img-fluid img-thumbnail"
+                     style="max-height: 150px;"
+                     onerror="this.style.display='none'" />
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-download me-2"></i>Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-action="Report" asp-route-id="@Model.Code" class="btn btn-success">
+                        <i class="bi bi-file-earmark-text me-2"></i>Ver Reporte HTML
+                    </a>
+                    <a asp-action="DownloadReport" asp-route-id="@Model.Code" class="btn btn-outline-success">
+                        <i class="bi bi-download me-2"></i>Descargar PDF
+                    </a>
+                    @if (User.FindFirst("Nivel")?.Value == "2" || User.FindFirst("Nivel")?.Value == "3")
+                    {
+                        <hr />
+                        <a asp-controller="City" asp-action="Create" asp-route-countryCode="Model.Code" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Agregar Ciudad
+                        </a>
+                        <a asp-controller="CountryLanguage" asp-action="Create" asp-route-countryCode="Model.Code" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Agregar Idioma
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

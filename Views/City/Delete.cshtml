@@ -1,0 +1,27 @@
+@model PaisApp.Models.City
+@{
+    ViewData["Title"] = "Eliminar Ciudad - " + Model.Name;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Eliminación</h5>
+            </div>
+            <div class="card-body text-center">
+                <i class="bi bi-building" style="font-size: 4rem; color: #dc3545;"></i>
+                <h3 class="mt-3">@Model.Name</h3>
+                <p class="text-muted">@Model.Country?.Name <code>@Model.CountryCode</code></p>
+                <p class="text-danger fw-bold">¿Está seguro de eliminar esta ciudad?</p>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Cancelar</a>
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

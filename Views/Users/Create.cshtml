@@ -1,0 +1,93 @@
+@model PaisApp.Models.Cgusuarios
+@{
+    ViewData["Title"] = "Nuevo Usuario";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-person-plus me-2"></i>Nuevo Usuario</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Volver</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post" class="needs-validation" novalidate>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Datos del Usuario</h5>
+                </div>
+                <div class="card-body">
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label"></label>
+                        <input asp-for="Username" class="form-control" maxlength="8" placeholder="Máx 8 caracteres" required />
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Nombre" class="form-label"></label>
+                        <input asp-for="Nombre" class="form-control" maxlength="30" required />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Apellido1" class="form-label"></label>
+                            <input asp-for="Apellido1" class="form-control" maxlength="30" required />
+                            <span asp-validation-for="Apellido1" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Apellido2" class="form-label"></label>
+                            <input asp-for="Apellido2" class="form-control" maxlength="30" />
+                            <span asp-validation-for="Apellido2" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ContrasenaPlana" class="form-label">Contraseña</label>
+                        <input asp-for="ContrasenaPlana" class="form-control" required />
+                        <span asp-validation-for="ContrasenaPlana" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ConfirmarContrasena" class="form-label">Confirmar Contraseña</label>
+                        <input asp-for="ConfirmarContrasena" class="form-control" required />
+                        <span asp-validation-for="ConfirmarContrasena" class="text-danger"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Nivel" class="form-label"></label>
+                            <select asp-for="Nivel" class="form-select">
+                                <option value="1">1 - Lectura</option>
+                                <option value="2">2 - Modificar</option>
+                                <option value="3">3 - Administrador</option>
+                            </select>
+                            <span asp-validation-for="Nivel" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Status" class="form-label">Estado</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-1"></i>Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,112 @@
+@model IEnumerable<PaisApp.Models.Country>
+@{
+    ViewData["Title"] = "Países";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-flag me-2"></i>Países</h2>
+    @if (User.FindFirst("Nivel")?.Value == "2" || User.FindFirst("Nivel")?.Value == "3")
+    {
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Nuevo País
+        </a>
+    }
+</div>
+
+<form asp-action="Index" method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="search" class="form-control" placeholder="Buscar por nombre, código..." value="@ViewBag.Search" />
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search me-1"></i>Buscar</button>
+    </div>
+    <div class="col-md-2">
+        <a asp-action="Index" class="btn btn-outline-secondary w-100"><i class="bi bi-x-circle me-1"></i>Limpiar</a>
+    </div>
+</form>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Código</th>
+                        <th>Bandera</th>
+                        <th>Nombre</th>
+                        <th>Continente</th>
+                        <th>Región</th>
+                        <th class="text-end">Población</th>
+                        <th class="text-end">Esp. Vida</th>
+                        <th>Capital</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                            <tr>
+                                <td><code>@item.Code</code></td>
+                                <td>
+                                    <img src="https://flagcdn.com/32x24/@(item.Code2.ToLower()).png"
+                                         class="bandera-thumb"
+                                         alt="@item.Name"
+                                         onerror="this.style.display='none'" />
+                                </td>
+                                <td>@item.Name</td>
+                            <td>@item.Continent</td>
+                            <td>@item.Region</td>
+                            <td class="text-end">@item.Population.ToString("N0")</td>
+                            <td class="text-end">@(item.LifeExpectancy?.ToString("F1") ?? "N/A")</td>
+                            <td>@(item.CapitalCity?.Name ?? "N/A")</td>
+                             <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-outline-info" title="Ver">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @if (User.FindFirst("Nivel")?.Value == "2" || User.FindFirst("Nivel")?.Value == "3")
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-outline-warning" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-outline-danger" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    }
+                                    <a asp-action="Report" asp-route-id="@item.Code" class="btn btn-outline-success" title="Reporte">
+                                        <i class="bi bi-file-earmark-text"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        <div class="card-footer">
+            <nav aria-label="Paginación">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)" asp-route-search="@ViewBag.Search" asp-route-pageSize="@ViewBag.PageSize">Anterior</a>
+                    </li>
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-search="@ViewBag.Search" asp-route-pageSize="@ViewBag.PageSize">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)" asp-route-search="@ViewBag.Search" asp-route-pageSize="@ViewBag.PageSize">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+            <small class="text-muted d-block text-center mt-2">
+                Mostrando @(((ViewBag.CurrentPage - 1) * ViewBag.PageSize) + 1) a @Math.Min(ViewBag.CurrentPage * ViewBag.PageSize, ViewBag.TotalItems) de @ViewBag.TotalItems países
+            </small>
+        </div>
+    }
+</div>

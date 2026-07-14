@@ -1,0 +1,63 @@
+@model PaisApp.Models.Cgusuarios
+@{
+    ViewData["Title"] = "Eliminar Usuario";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-trash me-2"></i>Eliminar Usuario</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Volver</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Eliminación</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">¿Está seguro de eliminar el siguiente usuario?</p>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Usuario</dt>
+                    <dd class="col-sm-8"><code>@Model.Username</code></dd>
+
+                    <dt class="col-sm-4">Nombre</dt>
+                    <dd class="col-sm-8">@Model.NombreCompleto</dd>
+
+                    <dt class="col-sm-4">Nivel</dt>
+                    <dd class="col-sm-8">
+                        @switch (Model.Nivel)
+                        {
+                            case 1: <span class="badge bg-info">Lectura</span>; break;
+                            case 2: <span class="badge bg-warning text-dark">Modificar</span>; break;
+                            case 3: <span class="badge bg-danger">Admin</span>; break;
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Status == 1)
+                        {
+                            <span class="badge bg-success">Activo</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactivo</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+            <div class="card-footer">
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i>Eliminar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

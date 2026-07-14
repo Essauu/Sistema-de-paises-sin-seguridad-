@@ -1,0 +1,182 @@
+@model PaisApp.Models.Country
+@{
+    ViewData["Title"] = "Reporte - " + Model.Name;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-file-earmark-text me-2"></i>Reporte de @Model.Name</h2>
+    <div>
+        <a asp-action="Details" asp-route-id="@Model.Code" class="btn btn-outline-info"><i class="bi bi-eye me-1"></i>Detalles</a>
+        <a asp-action="DownloadReport" asp-route-id="@Model.Code" class="btn btn-success"><i class="bi bi-download me-1"></i>Descargar PDF</a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">@Model.Name (@Model.Code)</h4>
+        <img src="https://flagcdn.com/64x48/@(Model.Code2.ToLower()).png"
+             alt="Bandera"
+             style="height: 50px; border-radius: 4px;"
+             onerror="this.style.display='none'" />
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-borderless">
+                    <tr>
+                        <th class="text-muted">Código ISO 3:</th>
+                        <td><code>@Model.Code</code></td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Código ISO 2:</th>
+                        <td><code>@Model.Code2</code></td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Nombre Local:</th>
+                        <td>@Model.LocalName</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Continente:</th>
+                        <td><span class="badge bg-primary">@Model.Continent</span></td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Región:</th>
+                        <td>@Model.Region</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Superficie:</th>
+                        <td>@Model.SurfaceArea.ToString("N2") km²</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Población:</th>
+                        <td>@Model.Population.ToString("N0")</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-borderless">
+                    <tr>
+                        <th class="text-muted">Esperanza de Vida:</th>
+                        <td>@(Model.LifeExpectancy?.ToString("F1") ?? "N/A") años</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">GNP:</th>
+                        <td>@(Model.GNP?.ToString("N2") ?? "N/A")</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">GNP Anterior:</th>
+                        <td>@(Model.GNPOld?.ToString("N2") ?? "N/A")</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Gobierno:</th>
+                        <td>@Model.GovernmentForm</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Jefe de Estado:</th>
+                        <td>@(Model.HeadOfState ?? "N/A")</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Año Independencia:</th>
+                        <td>@(Model.IndepYear?.ToString() ?? "N/A")</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Capital:</th>
+                        <td>
+                            <strong>@(Model.CapitalCity?.Name ?? "N/A")</strong>
+                            @if (Model.CapitalCity != null)
+                            {
+                                <small class="text-muted">(Pob: @Model.CapitalCity.Population.ToString("N0"))</small>
+                            }
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-translate me-2"></i>Idiomas (@Model.CountryLanguages.Count)</h5>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.CountryLanguages.Any())
+                {
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Idioma</th>
+                                <th class="text-center">Oficial</th>
+                                <th class="text-end">Porcentaje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var lang in Model.CountryLanguages.OrderByDescending(l => l.Percentage))
+                            {
+                                <tr>
+                                    <td>@lang.Language</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-@(lang.IsOfficial == "T" ? "success" : "secondary")">
+                                            @(lang.IsOfficial == "T" ? "Sí" : "No")
+                                        </span>
+                                    </td>
+                                    <td class="text-end">@lang.Percentage.ToString("F1")%</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-3">No hay idiomas registrados</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-building me-2"></i>Top 10 Ciudades</h5>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Cities.Any())
+                {
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Ciudad</th>
+                                <th>Distrito</th>
+                                <th class="text-end">Población</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var city in Model.Cities.OrderByDescending(c => c.Population).Take(10).Select((c, i) => new { City = c, Index = i + 1 }))
+                            {
+                                <tr>
+                                    <td>@city.Index</td>
+                                    <td>
+                                        @city.City.Name
+                                        @if (city.City.Id == Model.Capital)
+                                        {
+                                            <span class="badge bg-warning text-dark ms-1">Capital</span>
+                                        }
+                                    </td>
+                                    <td>@city.City.District</td>
+                                    <td class="text-end">@city.City.Population.ToString("N0")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-3">No hay ciudades registradas</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,95 @@
+@model IEnumerable<PaisApp.Models.CountryLanguage>
+@{
+    ViewData["Title"] = "Idiomas por País";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-translate me-2"></i>Idiomas</h2>
+    @if (User.FindFirst("Nivel")?.Value == "2" || User.FindFirst("Nivel")?.Value == "3")
+    {
+        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Nuevo Idioma</a>
+    }
+</div>
+
+<form asp-action="Index" method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="search" class="form-control" placeholder="Buscar por idioma o país..." value="@ViewBag.Search" />
+    </div>
+    <div class="col-md-3">
+        <select name="countryCode" class="form-select" asp-items="@ViewBag.Countries">
+            <option value="">Todos los países</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search me-1"></i>Buscar</button>
+    </div>
+    <div class="col-md-2">
+        <a asp-action="Index" class="btn btn-outline-secondary w-100"><i class="bi bi-x-circle me-1"></i>Limpiar</a>
+    </div>
+</form>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>País</th>
+                    <th>Idioma</th>
+                    <th class="text-center">Oficial</th>
+                    <th class="text-end">Porcentaje</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <a asp-controller="Country" asp-action="Details" asp-route-id="@item.CountryCode">
+                                <code>@item.CountryCode</code> - @item.Country?.Name
+                            </a>
+                        </td>
+                        <td>@item.Language</td>
+                        <td class="text-center">
+                            <span class="badge bg-@(item.IsOfficial == "T" ? "success" : "secondary")">
+                                @(item.IsOfficial == "T" ? "Sí" : "No")
+                            </span>
+                        </td>
+                        <td class="text-end">@item.Percentage.ToString("F1")%</td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                @if (User.FindFirst("Nivel")?.Value == "2" || User.FindFirst("Nivel")?.Value == "3")
+                                {
+                                    <a asp-action="Edit" asp-route-countryCode="@item.CountryCode" asp-route-language="@item.Language" class="btn btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+                                    <a asp-action="Delete" asp-route-countryCode="@item.CountryCode" asp-route-language="@item.Language" class="btn btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        <div class="card-footer">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)" asp-route-search="@ViewBag.Search" asp-route-countryCode="@ViewBag.CountryCode">Anterior</a>
+                    </li>
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-search="@ViewBag.Search" asp-route-countryCode="@ViewBag.CountryCode">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)" asp-route-search="@ViewBag.Search" asp-route-countryCode="@ViewBag.CountryCode">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
