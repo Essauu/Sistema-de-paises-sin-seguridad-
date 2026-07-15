@@ -7,6 +7,7 @@ using PaisApp.Data;
 using PaisApp.Models;
 using PaisApp.Services;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 
 namespace PaisApp.Controllers;
 
@@ -261,12 +262,15 @@ public class CountryController : Controller
 
     private async Task<string> SaveFlagAsync(IFormFile file, string countryCode)
     {
-        var directorioSubidas = Path.Combine(_entorno.WebRootPath, "uploads", "flags");
+        var directorioSubidas = Path.GetFullPath(Path.Combine(_entorno.WebRootPath, "uploads", "flags"));
         Directory.CreateDirectory(directorioSubidas);
 
         var extension = Path.GetExtension(file.FileName);
         var nombreSeguro = _fileValidation.GetSafeFileName($"{countryCode}{extension}");
         var rutaArchivo = Path.Combine(directorioSubidas, nombreSeguro);
+
+        if (!rutaArchivo.StartsWith(directorioSubidas, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Intento de path traversal detectado.");
 
         using var stream = new FileStream(rutaArchivo, FileMode.Create);
         await file.CopyToAsync(stream);
@@ -276,16 +280,20 @@ public class CountryController : Controller
 
     private void DeleteFlagFile(string flagUrl)
     {
-        var rutaArchivo = Path.Combine(_entorno.WebRootPath, flagUrl.TrimStart('/'));
-        if (System.IO.File.Exists(rutaArchivo))
-            System.IO.File.Delete(rutaArchivo);
+        var rutaNormalizada = Path.GetFullPath(Path.Combine(_entorno.WebRootPath, flagUrl.TrimStart('/').Replace("..", "")));
+        if (!rutaNormalizada.StartsWith(Path.GetFullPath(_entorno.WebRootPath), StringComparison.OrdinalIgnoreCase))
+            return;
+        if (System.IO.File.Exists(rutaNormalizada))
+            System.IO.File.Delete(rutaNormalizada);
     }
 
     private byte[]? GetFlagBytes(string? flagUrl)
     {
         if (string.IsNullOrEmpty(flagUrl)) return null;
-        var rutaArchivo = Path.Combine(_entorno.WebRootPath, flagUrl.TrimStart('/'));
-        return System.IO.File.Exists(rutaArchivo) ? System.IO.File.ReadAllBytes(rutaArchivo) : null;
+        var rutaNormalizada = Path.GetFullPath(Path.Combine(_entorno.WebRootPath, flagUrl.TrimStart('/').Replace("..", "")));
+        if (!rutaNormalizada.StartsWith(Path.GetFullPath(_entorno.WebRootPath), StringComparison.OrdinalIgnoreCase))
+            return null;
+        return System.IO.File.Exists(rutaNormalizada) ? System.IO.File.ReadAllBytes(rutaNormalizada) : null;
     }
 
     private bool CountryExists(string id) => _contexto.Country.Any(e => e.Code == id);
