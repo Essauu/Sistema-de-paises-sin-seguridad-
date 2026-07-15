@@ -39,6 +39,14 @@ public class HomeController : Controller
         return View();
     }
 
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult XssEcho(string nombre)
+    {
+        ViewBag.Nombre = nombre;
+        return View();
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

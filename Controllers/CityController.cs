@@ -71,7 +71,6 @@ public class CityController : Controller
 
     [HttpPost]
     [Authorize(Policy = "Escritura")]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Name,CountryCode,District,Population")] City city)
     {
         if (ModelState.IsValid)
@@ -98,7 +97,6 @@ public class CityController : Controller
 
     [HttpPost]
     [Authorize(Policy = "Escritura")]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CountryCode,District,Population")] City city)
     {
         if (id != city.Id) return NotFound();

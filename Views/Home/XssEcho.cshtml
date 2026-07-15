@@ -1,0 +1,10 @@
+@{
+    ViewData["Title"] = "XSS Echo";
+}
+
+<h2>Echo de búsqueda (VULNERABLE)</h2>
+<p>Usted buscó: @Html.Raw(ViewBag.Nombre)</p>
+<form method="get">
+    <input type="text" name="nombre" placeholder="Ingrese un nombre..." class="form-control" />
+    <button type="submit" class="btn btn-danger mt-2">Buscar</button>
+</form>

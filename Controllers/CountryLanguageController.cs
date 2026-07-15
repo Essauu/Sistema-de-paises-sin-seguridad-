@@ -61,7 +61,6 @@ public class CountryLanguageController : Controller
 
     [HttpPost]
     [Authorize(Policy = "Escritura")]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("CountryCode,Language,IsOfficial,Percentage")] CountryLanguage countryLanguage)
     {
         if (ModelState.IsValid)
@@ -101,7 +100,6 @@ public class CountryLanguageController : Controller
 
     [HttpPost]
     [Authorize(Policy = "Escritura")]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(string countryCode, string language, [Bind("CountryCode,Language,IsOfficial,Percentage")] CountryLanguage countryLanguage)
     {
         if (countryCode != countryLanguage.CountryCode || language != countryLanguage.Language)

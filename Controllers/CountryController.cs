@@ -224,6 +224,30 @@ public class CountryController : Controller
 
     private static readonly HttpClient _httpClient = new HttpClient();
 
+    [HttpGet]
+    public IActionResult SqlSearch(string q)
+    {
+        if (string.IsNullOrEmpty(q)) return Content("Ingrese un término de búsqueda.");
+
+        var sql = $"SELECT Code, Name, Continent, Population FROM country WHERE Name LIKE '%{q}%' OR Code LIKE '%{q}%'";
+        using var cmd = _contexto.Database.GetDbConnection().CreateCommand();
+        cmd.CommandText = sql;
+        _contexto.Database.OpenConnection();
+        using var reader = cmd.ExecuteReader();
+
+        var results = new List<string>();
+        while (reader.Read())
+        {
+            results.Add($"<tr><td>{reader.GetString(0)}</td><td>{reader.GetString(1)}</td><td>{reader.GetString(2)}</td><td>{reader.GetInt32(3)}</td></tr>");
+        }
+
+        var html = $@"<html><body><h2>Resultados para: {q}</h2>
+        <table border=1><tr><th>Code</th><th>Name</th><th>Continent</th><th>Population</th></tr>
+        {string.Join("", results)}</table></body></html>";
+
+        return Content(html, "text/html");
+    }
+
     public async Task<IActionResult> DownloadReport(string id)
     {
         if (id == null) return NotFound();
@@ -262,38 +286,29 @@ public class CountryController : Controller
 
     private async Task<string> SaveFlagAsync(IFormFile file, string countryCode)
     {
-        var directorioSubidas = Path.GetFullPath(Path.Combine(_entorno.WebRootPath, "uploads", "flags"));
+        var directorioSubidas = Path.Combine(_entorno.WebRootPath, "uploads", "flags");
         Directory.CreateDirectory(directorioSubidas);
 
-        var extension = Path.GetExtension(file.FileName);
-        var nombreSeguro = _fileValidation.GetSafeFileName($"{countryCode}{extension}");
-        var rutaArchivo = Path.Combine(directorioSubidas, nombreSeguro);
-
-        if (!rutaArchivo.StartsWith(directorioSubidas, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Intento de path traversal detectado.");
+        var rutaArchivo = Path.Combine(directorioSubidas, file.FileName);
 
         using var stream = new FileStream(rutaArchivo, FileMode.Create);
         await file.CopyToAsync(stream);
 
-        return $"/uploads/flags/{nombreSeguro}";
+        return $"/uploads/flags/{file.FileName}";
     }
 
     private void DeleteFlagFile(string flagUrl)
     {
-        var rutaNormalizada = Path.GetFullPath(Path.Combine(_entorno.WebRootPath, flagUrl.TrimStart('/').Replace("..", "")));
-        if (!rutaNormalizada.StartsWith(Path.GetFullPath(_entorno.WebRootPath), StringComparison.OrdinalIgnoreCase))
-            return;
-        if (System.IO.File.Exists(rutaNormalizada))
-            System.IO.File.Delete(rutaNormalizada);
+        var rutaArchivo = Path.Combine(_entorno.WebRootPath, flagUrl.TrimStart('/'));
+        if (System.IO.File.Exists(rutaArchivo))
+            System.IO.File.Delete(rutaArchivo);
     }
 
     private byte[]? GetFlagBytes(string? flagUrl)
     {
         if (string.IsNullOrEmpty(flagUrl)) return null;
-        var rutaNormalizada = Path.GetFullPath(Path.Combine(_entorno.WebRootPath, flagUrl.TrimStart('/').Replace("..", "")));
-        if (!rutaNormalizada.StartsWith(Path.GetFullPath(_entorno.WebRootPath), StringComparison.OrdinalIgnoreCase))
-            return null;
-        return System.IO.File.Exists(rutaNormalizada) ? System.IO.File.ReadAllBytes(rutaNormalizada) : null;
+        var rutaArchivo = Path.Combine(_entorno.WebRootPath, flagUrl.TrimStart('/'));
+        return System.IO.File.Exists(rutaArchivo) ? System.IO.File.ReadAllBytes(rutaArchivo) : null;
     }
 
     private bool CountryExists(string id) => _contexto.Country.Any(e => e.Code == id);
